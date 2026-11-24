@@ -22,6 +22,7 @@ public:
     int searchById(int id) const;
     int searchByName(std::string name) const;
     int calculateWaitTime(int position) const;
+    Ticket getAtPosition(int position) const;
 };
 
 

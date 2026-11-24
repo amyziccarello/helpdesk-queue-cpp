@@ -43,6 +43,8 @@ int main() {
 #include "Ticket.h"
 #include "TicketQueue.h"
 #include "ActionStack.h"
+#include "Simulation.h"
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 using namespace std;
@@ -59,11 +61,18 @@ int main() {
         cout << "4. Search Ticket\n";
         cout << "5. Cancel Ticket\n";
         cout << "6. Undo Last Action\n";
-        cout << "7. Exit\n";
+        cout << "7. Load Tickets from CSV\n";
+        cout << "8. Save Tickets to CSV\n";
+        cout << "9. Run Agent Simulation\n";
+        cout << "10. Exit\n";
         cout << "\nEnter your choice: ";
         cin >> choice;
         switch (choice) {
             case 1: {
+                if (actionStack.isFull()) {
+                    cout << "Action history is full. Cannot add ticket.\n";
+                    break;
+                }
                 string name;
                 string category;
                 int minutes;
@@ -95,6 +104,10 @@ int main() {
             }
 
             case 2: {
+                if (actionStack.isFull()) {
+                    cout << "Action history is full. Cannot add ticket.\n";
+                    break;
+                }
                 Ticket servedTicket;
                 if (queue.dequeue(servedTicket)) {
                     Action action;
@@ -155,9 +168,11 @@ int main() {
                 }
                 break;
             }
-        
-            
             case 5: {
+                if (actionStack.isFull()) {
+                    cout << "Action history is full. Cannot cancel ticket.\n";
+                    break;
+                }
                 int id;
                 cout << "Enter ticket ID to cancel: ";
                 cin >> id;
@@ -178,41 +193,129 @@ int main() {
                 cout << "Ticket ID not found.\n";
             }
             break;
-        }
-
-        
-            
+        } 
             case 6: {
                 Action lastAction;
                 if (actionStack.pop(lastAction)) {
+                    bool success = false;
                     if (lastAction.type == "ADD") {
                         Ticket removedTicket;
-                            int position;
-                            queue.cancel(lastAction.ticket.getId(), removedTicket, position);
-                            cout << "Last ADD action undone.\n";
-                        }
-
+                        int position;
+                        success = queue.cancel(
+                        lastAction.ticket.getId(),
+                        removedTicket,
+                        position
+                    );
+                }
                     else if (lastAction.type == "SERVE") {
-                        queue.insertAt(lastAction.ticket, 1);
-                        cout << "Last SERVE action undone.\n";
+                        success = queue.insertAt(lastAction.ticket, 1);
                     }
                     else if (lastAction.type == "CANCEL") {
-                        queue.insertAt(lastAction.ticket, lastAction.position);
-                        cout << "Last CANCEL action undone.\n";
-                    }
+                        success = queue.insertAt(
+                        lastAction.ticket,
+                        lastAction.position
+                    );
+                }
+                if (success) {
+                    cout << "Last " << lastAction.type
+                         << " action undone successfully.\n";
                 }
                 else {
-                    cout << "There are no actions to undo.\n";
+                    actionStack.push(lastAction);
+                    cout << "Undo failed. Action restored to stack.\n";
                 }
+            }
+            else {
+                cout << "There are no actions to undo.\n";
+            }
+            break;
+        }
+            case 7: {
+                ifstream inputFile("data/sample_tickets.csv");
+                if (!inputFile.is_open()) {
+                    cout << "Could not open CSV file.\n";
+                    break;
+                }
+                string line;
+                getline(inputFile, line); // Skip header
+                int loaded = 0;
+                while (getline(inputFile, line)) {
+                    stringstream ss(line);      
+                    string idText, name, category, minutesText;
+                    getline(ss, idText, ',');
+                    getline(ss, name, ',');
+                    getline(ss, category, ',');
+                    getline(ss, minutesText, ',');
+
+                    if (idText.empty() || name.empty() ||
+                        category.empty() || minutesText.empty()) {
+                        continue;
+                    }
+                    int id = stoi(idText);
+                    int minutes = stoi(minutesText);
+                    Ticket ticket(id, name, category, minutes);
+                    if (queue.enqueue(ticket)) {
+                        loaded++;
+                        if (id >= nextId) {
+                            nextId = id + 1;
+                        }
+                    }
+                    else {
+                        cout << "Queue is full. Some tickets were not loaded.\n";
+                        break;
+                    }
+                }
+
+                inputFile.close();
+                cout << loaded << " tickets loaded successfully.\n";
                 break;
             }
-
-            case 7:
+            case 8: {
+                ofstream outputFile("data/saved_tickets.csv");
+                if (!outputFile.is_open()) {
+                    cout << "Could not save CSV file.\n";
+                    break;
+                }   
+                outputFile << "id,studentName,category,minutesNeeded\n";
+                for (int i = 1; i <= queue.size(); i++) {
+                    Ticket ticket = queue.getAtPosition(i);
+                    outputFile << ticket.getId() << ","
+                               << ticket.getStudentName() << ","
+                               << ticket.getCategory() << ","
+                               << ticket.getMinutesNeeded() << "\n";
+                }
+                outputFile.close();
+                cout << "Tickets saved successfully!\n";
+                break;
+            }
+            case 9: {
+                SimulationResult oneAgent =
+                Simulation::runSimulation("data/sample_tickets.csv", 1);
+                SimulationResult twoAgents = Simulation::runSimulation("data/sample_tickets.csv", 2);
+                cout << fixed << setprecision(2);
+                cout << "\n===== SIMULATION RESULTS =====\n";
+                cout << "\nONE AGENT:\n";
+                cout << "Tickets processed: "
+                     << oneAgent.totalTickets << endl;
+                cout << "Average wait: "
+                     << oneAgent.averageWait << " minutes\n";
+                cout << "Longest wait: "
+                     << oneAgent.longestWait << " minutes\n";
+                cout << "\nTWO AGENTS:\n";
+                cout << "Tickets processed: "
+                     << twoAgents.totalTickets << endl;
+                cout << "Average wait: "
+                     << twoAgents.averageWait << " minutes\n";
+                cout << "Longest wait: "
+                     << twoAgents.longestWait << " minutes\n";
+                break;
+            }
+            case 10:
                 cout << "Exiting help desk system.\n";
                 break;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
-    } while (choice != 7);
+    } while (choice != 10);
     return 0;
 }

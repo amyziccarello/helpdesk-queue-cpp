@@ -120,3 +120,12 @@ int TicketQueue::calculateWaitTime(int position) const {
     return totalMinutes;
 }
 
+Ticket TicketQueue::getAtPosition(int position) const {
+    if (position < 1 || position > count) {
+        return Ticket();
+    }
+
+    int index = (front + position - 1) % CAPACITY;
+
+    return tickets[index];
+}
