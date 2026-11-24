@@ -53,6 +53,7 @@ int main() {
     ActionStack actionStack;
     int nextId = 1;
     int choice;
+    bool csvLoaded = false;
     do {
         cout << "\n===== UNIVERSITY IT HELP DESK =====\n";
         cout << "1. Add Ticket\n";
@@ -66,7 +67,12 @@ int main() {
         cout << "9. Run Agent Simulation\n";
         cout << "10. Exit\n";
         cout << "\nEnter your choice: ";
-        cin >> choice;
+        if (!(cin >> choice)) {
+            cout << "Please enter a number from 1 to 10.\n";
+            cin.clear();
+            cin.ignore(10000, '\n');
+            continue;
+        }
         switch (choice) {
             case 1: {
                 if (actionStack.isFull()) {
@@ -83,7 +89,12 @@ int main() {
                 getline(cin, category);
                 cout << "Enter estimated minutes needed: ";
                 cin >> minutes;
-
+                if (cin.fail() || minutes <= 0) {
+                    cout << "Please enter a valid positive number of minutes.\n";
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    break;
+                }
                 Ticket newTicket(nextId, name, category, minutes);
                 if (queue.enqueue(newTicket)) {
                     Action action;
@@ -231,6 +242,14 @@ int main() {
             break;
         }
             case 7: {
+                if (nextId != 1 || actionStack.size() > 0 || !queue.isEmpty()) {
+                    cout << "Load the CSV before adding or serving tickets.\n";
+                    break;
+                }
+                if (csvLoaded) {
+                    cout << "CSV file has already been loaded.\n";
+                    break;
+                }
                 ifstream inputFile("data/sample_tickets.csv");
                 if (!inputFile.is_open()) {
                     cout << "Could not open CSV file.\n";
@@ -265,8 +284,8 @@ int main() {
                         break;
                     }
                 }
-
                 inputFile.close();
+                csvLoaded = true;
                 cout << loaded << " tickets loaded successfully.\n";
                 break;
             }

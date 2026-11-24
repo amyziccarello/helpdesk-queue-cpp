@@ -36,7 +36,13 @@ SimulationResult Simulation::runSimulation(
         if (idText.empty() || minutesText.empty()) {
             continue;
         }
-        int minutes = std::stoi(minutesText);
+        int minutes;
+        try {
+            minutes = std::stoi(minutesText);
+        }
+        catch (const std::exception&) {
+            continue;
+        }
         int selectedAgent = 0;
         for (int i = 1; i < numberOfAgents; i++) {
             if (agentAvailable[i] <
