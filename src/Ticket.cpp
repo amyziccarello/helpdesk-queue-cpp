@@ -6,6 +6,12 @@ Ticket::Ticket(int id, std::string studentName,
     this->category = category;
     this->minutesNeeded = minutesNeeded;
 }
+Ticket::Ticket() {
+    id = 0;
+    studentName = "";
+    category = "";
+    minutesNeeded = 0;
+}
 int Ticket::getId() const {
     return id;
 }
