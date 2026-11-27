@@ -24,66 +24,72 @@ A C++ program that simulates a university IT help desk. The system manages stude
 
 This project is written in C++ and does not require any external libraries. To compile and run the program, use the following commands in your terminal:
 
-```bash
-# 1. Compile the source files. 
-# (Make sure you are in the root directory of the project)
-g++ -std=c++11 src/*.cpp -o helpdesk
+    # 1. Compile the source files. 
+    # (Make sure you are in the root directory of the project)
+    g++ -std=c++11 src/*.cpp -o helpdesk
 
-# 2. Run the executable
-./helpdesk
+    # 2. Run the executable
+    ./helpdesk
 
-Sample Session
+*(Note: If you are using Windows, the executable will be `helpdesk.exe`, and you should run `.\helpdesk.exe`.)*
+
+## Sample Session
+
 Below is an example of how a user session looks when adding a ticket, viewing the queue, and undoing an action:
-=== UNIVERSITY IT HELP DESK ===
-1. Add Ticket
-2. Serve Ticket
-3. Print Waiting Tickets
-4. Search Ticket
-5. Cancel Ticket
-6. Undo Last Action
-7. Load Tickets from CSV
-8. Save Tickets to CSV
-9. Run Agent Simulation
-10. Exit
 
-Enter your choice: 1
-Enter student name: Alice Smith
-Enter ticket category: Wi-Fi Problem
-Enter estimated minutes needed: 15
-Ticket added successfully!
-Ticket ID: 1
+    === UNIVERSITY IT HELP DESK ===
+    1. Add Ticket
+    2. Serve Ticket
+    3. Print Waiting Tickets
+    4. Search Ticket
+    5. Cancel Ticket
+    6. Undo Last Action
+    7. Load Tickets from CSV
+    8. Save Tickets to CSV
+    9. Run Agent Simulation
+    10. Exit
 
-Enter your choice: 1
-Enter student name: Bob Jones
-Enter ticket category: Password Reset
-Enter estimated minutes needed: 10
-Ticket added successfully!
-Ticket ID: 2
+    Enter your choice: 1
+    Enter student name: Alice Smith
+    Enter ticket category: Wi-Fi Problem
+    Enter estimated minutes needed: 15
+    Ticket added successfully!
+    Ticket ID: 1
 
-Enter your choice: 3
+    Enter your choice: 1
+    Enter student name: Bob Jones
+    Enter ticket category: Password Reset
+    Enter estimated minutes needed: 10
+    Ticket added successfully!
+    Ticket ID: 2
 
---- Waiting Tickets ---
-Position: 1 | ID: 1 | Student: Alice Smith | Category: Wi-Fi Problem | Minutes: 15
-Position: 2 | ID: 2 | Student: Bob Jones | Category: Password Reset | Minutes: 10
-Total waiting minutes: 25
+    Enter your choice: 3
 
-Enter your choice: 6
-Undo successful! Ticket ID: 2 removed.
+    --- Waiting Tickets ---
+    Position: 1 | ID: 1 | Student: Alice Smith | Category: Wi-Fi Problem | Minutes: 15
+    Position: 2 | ID: 2 | Student: Bob Jones | Category: Password Reset | Minutes: 10
+    Total waiting minutes: 25
 
-Enter your choice: 3
+    Enter your choice: 6
+    Undo successful! Ticket ID: 2 removed.
 
---- Waiting Tickets ---
-Position: 1 | ID: 1 | Student: Alice Smith | Category: Wi-Fi Problem | Minutes: 15
-Total waiting minutes: 15
+    Enter your choice: 3
 
-Enter your choice: 10
-Exiting system. Goodbye!
+    --- Waiting Tickets ---
+    Position: 1 | ID: 1 | Student: Alice Smith | Category: Wi-Fi Problem | Minutes: 15
+    Total waiting minutes: 15
 
-Simulation Results
-Using the sample tickets in data/sample_tickets.csv:
+    Enter your choice: 10
+    Exiting system. Goodbye!
 
-Metric	One Agent	Two Agents
-Tickets processed	5	5
-Average wait	33.00 minutes	12.00 minutes
-Longest wait	70 minutes	25 minutes
-Simulation assumption: All tickets are assumed to arrive at the beginning of the simulation and are assigned in CSV order to the agent who becomes available first.
+## Simulation Results
+
+Using the sample tickets in `data/sample_tickets.csv`:
+
+| Metric | One Agent | Two Agents |
+|---|---|---|
+| Tickets processed | 5 | 5 |
+| Average wait | 33.00 minutes | 12.00 minutes |
+| Longest wait | 70 minutes | 25 minutes |
+
+**Simulation assumption:** All tickets are assumed to arrive at the beginning of the simulation and are assigned in CSV order to the agent who becomes available first.
